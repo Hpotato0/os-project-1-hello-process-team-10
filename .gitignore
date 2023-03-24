@@ -9,6 +9,8 @@
 #
 # Normal rules (sorted alphabetically)
 #
+/qemu-7.2.0/
+
 .*
 *.a
 *.asn1.[ch]

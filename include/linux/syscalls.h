@@ -907,6 +907,9 @@ asmlinkage long sys_statx(int dfd, const char __user *path, unsigned flags,
 asmlinkage long sys_rseq(struct rseq __user *rseq, uint32_t rseq_len,
 			 int flags, uint32_t sig);
 
+/* kernel/ptree.c */
+asmlinkage long sys_ptree(struct pinfo *buf, size_t len);
+
 /*
  * Architecture-specific system calls
  */
