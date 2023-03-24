@@ -28,6 +28,7 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
     size_t sz;          // size to allocate
     struct pinfo* pBuff;// allocated buffer pointer
     size_t pcount;      // pinfo read count
+    size_t sz_copy_user_base;
     unsigned long failed_copy_bytes;// for checking copy_to_user failure
 
     // for traversing tree
@@ -52,12 +53,15 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
     taskptr = &init_task;
     pcount = 0;
     going_down = 1;
+    sz_copy_user_base = 0;
     
     while(pcount < len){
         size_t start;
         size_t end;
         size_t idx;
         size_t sz_copy;
+
+        if(cur_depth == 0 && going_down==0) break;
 
         printk("pcount: %ld\n", pcount);
 
@@ -97,7 +101,7 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
                 }
                 else{
                     going_down = 0;
-                    if((taskptr->sibling).next != NULL){
+                    if(list_first_entry(&(taskptr->sibling), struct task_struct, children) != taskptr->real_parent){
                         printk("cpath2-1 begins\n");
                         taskptr = list_first_entry(&(taskptr->sibling), struct task_struct, sibling);
                         printk("cpath2-1 ends\n");
@@ -113,7 +117,7 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
             }
             else{
                 if(from_child){ // last node was its child
-                    if((taskptr->sibling).next != NULL){
+                    if(list_first_entry(&(taskptr->sibling), struct task_struct, children) != taskptr->real_parent){
                         printk("cpath3-1 begins\n");
                         from_child = 0;
                         taskptr = list_first_entry(&(taskptr->sibling), struct task_struct, sibling);
@@ -141,7 +145,7 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
                         printk("cpath4-1 ends\n");
                     }
                     else{
-                        if((taskptr->sibling).next != NULL){
+                        if(list_first_entry(&(taskptr->sibling), struct task_struct, children) != taskptr->real_parent){
                             printk("cpath4-2-1 begins\n");
                             taskptr = list_first_entry(&(taskptr->sibling), struct task_struct, sibling);
                             printk("cpath4-2-1 ends\n");
@@ -162,7 +166,10 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
         printk("final index: %ld\n", idx);
 
         sz_copy = sizeof(struct pinfo) * idx;
-        failed_copy_bytes = copy_to_user(buf, pBuff, sz_copy);
+
+        printk("copy userside base: %ld\n", sz_copy_user_base);
+        failed_copy_bytes = copy_to_user(buf + sz_copy_user_base, pBuff, sz_copy);
+        sz_copy_user_base += alloc_unit;
     }
 
     return pcount;
