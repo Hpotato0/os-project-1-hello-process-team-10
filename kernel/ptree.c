@@ -8,15 +8,21 @@
 #include <linux/sched.h> //TASK_COMM_LEN
 
 static void savePinfoToBuff(struct task_struct* taskptr, struct pinfo* pBuff, unsigned int cur_depth){
+    
+    printk("save 1\n");
     pBuff->state = taskptr->state;
+    printk("save 2\n");
     pBuff->pid = taskptr->pid;
-    pBuff->uid = (taskptr)->cred->uid.val;
-
+    printk("save 3\n");
+    pBuff->uid = (task_uid(taskptr)).val;
+    printk("save 4\n");
     __get_task_comm(pBuff->comm, TASK_COMM_LEN, taskptr);
+    printk("save 5\n");
     pBuff->depth = cur_depth;
+    printk("save 6\n");
 }
 
-SYSCALL_DEFINE2(ptree, struct pinfo *, buf, size_t, len)
+SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
 {
     size_t alloc_unit;  // allocation unit
     size_t sz;          // size to allocate
@@ -53,9 +59,13 @@ SYSCALL_DEFINE2(ptree, struct pinfo *, buf, size_t, len)
         size_t idx;
         size_t sz_copy;
 
+        printk("pcount: %ld\n", pcount);
+
         start = pcount;
         if(pcount + alloc_unit > len) end = len;
         else end = pcount + alloc_unit;
+
+        printk("end: %ld\n", end);
 
         idx = 0;
         read_lock(&tasklist_lock);
@@ -65,15 +75,25 @@ SYSCALL_DEFINE2(ptree, struct pinfo *, buf, size_t, len)
             //depth is changed when jump to next node
             //copied_num is changed when taskptr is visited
             //goint_down & from_child is changed when jump to next node
+            printk("pcount: %ld\n", pcount);
+            printk("pointer value: %x\n", taskptr);
+            printk("going_down =: %d\n", going_down);
+            printk("from_child: %d\n", from_child);
+            printk("depth: %d\n\n", cur_depth);
+
             if(cur_depth == 0 && going_down==0) break;
 
             if(going_down){ // must visit taskptr
-                savePinfoToBuff(taskptr, pBuff+idx, cur_depth);                
+                printk("@saving\n");
+                savePinfoToBuff(taskptr, pBuff+idx, cur_depth);
+                printk("@save done\n");           
                 idx++; pcount++;
 
                 if(!list_empty(&(taskptr->children))){
-                    taskptr = list_first_entry(&(taskptr->children), struct task_struct, children);
+                    printk("section1\n");
+                    taskptr = list_first_entry(&(taskptr->children), struct task_struct, sibling);
                     cur_depth++;
+                    printk("section2\n");
                 }
                 else{
                     going_down = 0;
@@ -105,7 +125,7 @@ SYSCALL_DEFINE2(ptree, struct pinfo *, buf, size_t, len)
 
                     if(!list_empty(&(taskptr->children))){
                         going_down = 1;
-                        taskptr = list_first_entry(&(taskptr->children), struct task_struct, children);
+                        taskptr = list_first_entry(&(taskptr->children), struct task_struct, sibling);
                         cur_depth++;
                     }
                     else{
@@ -122,6 +142,8 @@ SYSCALL_DEFINE2(ptree, struct pinfo *, buf, size_t, len)
             }
         }
         read_unlock(&tasklist_lock);
+
+        printk("final index: %ld\n", idx);
 
         sz_copy = sizeof(struct pinfo) * idx;
         failed_copy_bytes = copy_to_user(buf, pBuff, sz_copy);
