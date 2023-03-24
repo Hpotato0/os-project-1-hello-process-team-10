@@ -84,9 +84,9 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
             if(cur_depth == 0 && going_down==0) break;
 
             if(going_down){ // must visit taskptr
-                printk("@saving\n");
+                printk("@saving1\n");
                 savePinfoToBuff(taskptr, pBuff+idx, cur_depth);
-                printk("@save done\n");           
+                printk("@save done1\n");           
                 idx++; pcount++;
 
                 if(!list_empty(&(taskptr->children))){
@@ -97,7 +97,7 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
                 }
                 else{
                     going_down = 0;
-                    if(!list_empty(&(taskptr->sibling))){
+                    if((taskptr->sibling).next != NULL){
                         printk("cpath2-1 begins\n");
                         taskptr = list_first_entry(&(taskptr->sibling), struct task_struct, sibling);
                         printk("cpath2-1 ends\n");
@@ -113,7 +113,7 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
             }
             else{
                 if(from_child){ // last node was its child
-                    if(!list_empty(&(taskptr->sibling))){
+                    if((taskptr->sibling).next != NULL){
                         printk("cpath3-1 begins\n");
                         from_child = 0;
                         taskptr = list_first_entry(&(taskptr->sibling), struct task_struct, sibling);
@@ -128,7 +128,9 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
                     }
                 }
                 else{// last node was its sibling, must visit taskptr
-                    savePinfoToBuff(taskptr, pBuff+idx, cur_depth);                
+                    printk("@saving2\n");
+                    savePinfoToBuff(taskptr, pBuff+idx, cur_depth);
+                    printk("@saving done2\n");                
                     idx++; pcount++;
 
                     if(!list_empty(&(taskptr->children))){
@@ -139,7 +141,7 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
                         printk("cpath4-1 ends\n");
                     }
                     else{
-                        if(!list_empty(&(taskptr->sibling))){
+                        if((taskptr->sibling).next != NULL){
                             printk("cpath4-2-1 begins\n");
                             taskptr = list_first_entry(&(taskptr->sibling), struct task_struct, sibling);
                             printk("cpath4-2-1 ends\n");
