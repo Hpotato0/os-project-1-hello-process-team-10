@@ -174,5 +174,6 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
         sz_copy_user_base += alloc_unit;
     }
 
+    kvfree(pBuff);
     return pcount;
 }

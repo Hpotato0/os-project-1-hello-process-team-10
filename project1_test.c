@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h> //isdigit
 
 struct pinfo {
   int64_t  state;       /* current state of the process */
@@ -46,13 +47,13 @@ int main(int argc, char* argv[]){
     }
     else
     {
-        printf("number of pinfo: %d\n", ret);
-        for(i=0;i<ret+5;i++)
+        printf("number of pinfo: %ld\n", ret);
+        for(i=0;i<ret;i++)
         {
             p = data[i];
             for(j=0;j<p.depth;j++)
                 printf("\t");
-            printf("%s, %d, %lld, %lld\n", p.comm, p.pid, p.state, p.uid);
+            printf("%s, %d, %ld, %ld\n", p.comm, p.pid, p.state, p.uid);
         }
     }
 
