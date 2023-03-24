@@ -46,7 +46,8 @@ int main(int argc, char* argv[]){
     }
     else
     {
-        for(i=0;i<length;i++)
+        printf("number of pinfo: %d\n", ret);
+        for(i=0;i<ret+1;i++)
         {
             p = data[i];
             for(j=0;j<p.depth;j++)
