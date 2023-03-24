@@ -90,33 +90,41 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
                 idx++; pcount++;
 
                 if(!list_empty(&(taskptr->children))){
-                    printk("section1\n");
+                    printk("cpath1 begins\n");
                     taskptr = list_first_entry(&(taskptr->children), struct task_struct, sibling);
                     cur_depth++;
-                    printk("section2\n");
+                    printk("cpath1 ends\n");
                 }
                 else{
                     going_down = 0;
                     if(!list_empty(&(taskptr->sibling))){
+                        printk("cpath2-1 begins\n");
                         taskptr = list_first_entry(&(taskptr->sibling), struct task_struct, sibling);
+                        printk("cpath2-1 ends\n");
                     }
                     else{
+                        printk("cpath2-2 begins\n");
                         taskptr = taskptr->real_parent;
                         from_child = 1;
                         cur_depth--;
+                        printk("cpath2-2 ends\n");
                     }
                 }
             }
             else{
                 if(from_child){ // last node was its child
                     if(!list_empty(&(taskptr->sibling))){
+                        printk("cpath3-1 begins\n");
                         from_child = 0;
                         taskptr = list_first_entry(&(taskptr->sibling), struct task_struct, sibling);
+                        printk("cpath3-1 ends\n");
                     }
                     else{ // taskptr doesn't have next sibling => go to parent
+                        printk("cpath3-2 begins\n");
                         taskptr = taskptr->real_parent;
                         from_child = 1;
                         cur_depth--;
+                        printk("cpath3-2 ends\n");
                     }
                 }
                 else{// last node was its sibling, must visit taskptr
@@ -124,18 +132,24 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
                     idx++; pcount++;
 
                     if(!list_empty(&(taskptr->children))){
+                        printk("cpath4-1 begins\n");
                         going_down = 1;
                         taskptr = list_first_entry(&(taskptr->children), struct task_struct, sibling);
                         cur_depth++;
+                        printk("cpath4-1 ends\n");
                     }
                     else{
                         if(!list_empty(&(taskptr->sibling))){
+                            printk("cpath4-2-1 begins\n");
                             taskptr = list_first_entry(&(taskptr->sibling), struct task_struct, sibling);
+                            printk("cpath4-2-1 ends\n");
                         }
                         else{
+                            printk("cpath4-2-2 begins\n");
                             taskptr = taskptr->real_parent;
                             from_child = 1;
                             cur_depth--;
+                            printk("cpath4-2-2 ends\n");
                         }
                     }
                 }
