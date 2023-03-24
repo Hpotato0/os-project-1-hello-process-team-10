@@ -5,21 +5,21 @@
 #include <linux/gfp.h> // GFP_KERNEL
 #include <uapi/asm-generic/errno-base.h> // error codes
 #include <linux/cred.h> // cred->kuid_t
-#include <linux/sched.h> //TASK_COMM_LEN
+#include <linux/sched.h> // TASK_COMM_LEN
+#include <linux/uaccess.h> // access_ok
 
 static void savePinfoToBuff(struct task_struct* taskptr, struct pinfo* pBuff, unsigned int cur_depth){
-    
-    printk("save 1\n");
+    //printk("save 1\n");
     pBuff->state = taskptr->state;
-    printk("save 2\n");
+    //printk("save 2\n");
     pBuff->pid = taskptr->pid;
-    printk("save 3\n");
+    //printk("save 3\n");
     pBuff->uid = (task_uid(taskptr)).val;
-    printk("save 4\n");
+    //printk("save 4\n");
     __get_task_comm(pBuff->comm, TASK_COMM_LEN, taskptr);
-    printk("save 5\n");
+    //printk("save 5\n");
     pBuff->depth = cur_depth;
-    printk("save 6\n");
+    //printk("save 6\n");
 }
 
 SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
@@ -38,11 +38,13 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
     unsigned int cur_depth = 0;
 
     // debug msg
-    printk("running syscall ptree\n");
+    //printk("running syscall ptree\n");
 
     // error detection
     if(buf == NULL || len == 0)
         return -EINVAL;
+    if(!access_ok(VERIFY_WRITE, buf, len))
+        return -EFAULT;
 
     // allocate
     alloc_unit = 64;
@@ -63,13 +65,13 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
 
         if(cur_depth == 0 && going_down==0) break;
 
-        printk("pcount: %ld\n", pcount);
+        //printk("pcount: %ld\n", pcount);
 
         start = pcount;
         if(pcount + alloc_unit > len) end = len;
         else end = pcount + alloc_unit;
 
-        printk("end: %ld\n", end);
+        //printk("end: %ld\n", end);
 
         idx = 0;
         read_lock(&tasklist_lock);
@@ -79,83 +81,83 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
             //depth is changed when jump to next node
             //copied_num is changed when taskptr is visited
             //goint_down & from_child is changed when jump to next node
-            printk("pcount: %ld\n", pcount);
-            printk("pointer value: %x\n", taskptr);
-            printk("going_down =: %d\n", going_down);
-            printk("from_child: %d\n", from_child);
-            printk("depth: %d\n\n", cur_depth);
+            //printk("pcount: %ld\n", pcount);
+            //printk("pointer value: %x\n", taskptr);
+            //printk("going_down =: %d\n", going_down);
+            //printk("from_child: %d\n", from_child);
+            //printk("depth: %d\n\n", cur_depth);
 
             if(cur_depth == 0 && going_down==0) break;
 
             if(going_down){ // must visit taskptr
-                printk("@saving1\n");
+                //printk("@saving1\n");
                 savePinfoToBuff(taskptr, pBuff+idx, cur_depth);
-                printk("@save done1\n");           
+                //printk("@save done1\n");           
                 idx++; pcount++;
 
                 if(!list_empty(&(taskptr->children))){
-                    printk("cpath1 begins\n");
+                    //printk("cpath1 begins\n");
                     taskptr = list_first_entry(&(taskptr->children), struct task_struct, sibling);
                     cur_depth++;
-                    printk("cpath1 ends\n");
+                    //printk("cpath1 ends\n");
                 }
                 else{
                     going_down = 0;
                     if(list_first_entry(&(taskptr->sibling), struct task_struct, children) != taskptr->real_parent){
-                        printk("cpath2-1 begins\n");
+                        //printk("cpath2-1 begins\n");
                         taskptr = list_first_entry(&(taskptr->sibling), struct task_struct, sibling);
-                        printk("cpath2-1 ends\n");
+                        //printk("cpath2-1 ends\n");
                     }
                     else{
-                        printk("cpath2-2 begins\n");
+                        //printk("cpath2-2 begins\n");
                         taskptr = taskptr->real_parent;
                         from_child = 1;
                         cur_depth--;
-                        printk("cpath2-2 ends\n");
+                        //printk("cpath2-2 ends\n");
                     }
                 }
             }
             else{
                 if(from_child){ // last node was its child
                     if(list_first_entry(&(taskptr->sibling), struct task_struct, children) != taskptr->real_parent){
-                        printk("cpath3-1 begins\n");
+                        //printk("cpath3-1 begins\n");
                         from_child = 0;
                         taskptr = list_first_entry(&(taskptr->sibling), struct task_struct, sibling);
-                        printk("cpath3-1 ends\n");
+                        //printk("cpath3-1 ends\n");
                     }
                     else{ // taskptr doesn't have next sibling => go to parent
-                        printk("cpath3-2 begins\n");
+                        //printk("cpath3-2 begins\n");
                         taskptr = taskptr->real_parent;
                         from_child = 1;
                         cur_depth--;
-                        printk("cpath3-2 ends\n");
+                        //printk("cpath3-2 ends\n");
                     }
                 }
                 else{// last node was its sibling, must visit taskptr
-                    printk("@saving2\n");
+                    //printk("@saving2\n");
                     savePinfoToBuff(taskptr, pBuff+idx, cur_depth);
-                    printk("@saving done2\n");                
+                    //printk("@saving done2\n");                
                     idx++; pcount++;
 
                     if(!list_empty(&(taskptr->children))){
-                        printk("cpath4-1 begins\n");
+                        //printk("cpath4-1 begins\n");
                         going_down = 1;
                         taskptr = list_first_entry(&(taskptr->children), struct task_struct, sibling);
                         cur_depth++;
-                        printk("cpath4-1 ends\n");
+                        //printk("cpath4-1 ends\n");
                     }
                     else{
                         if(list_first_entry(&(taskptr->sibling), struct task_struct, children) != taskptr->real_parent){
-                            printk("cpath4-2-1 begins\n");
+                            //printk("cpath4-2-1 begins\n");
                             taskptr = list_first_entry(&(taskptr->sibling), struct task_struct, sibling);
-                            printk("cpath4-2-1 ends\n");
+                            //printk("cpath4-2-1 ends\n");
                         }
                         else{
-                            printk("cpath4-2-2 begins\n");
+                            //printk("cpath4-2-2 begins\n");
                             taskptr = taskptr->real_parent;
                             from_child = 1;
                             cur_depth--;
-                            printk("cpath4-2-2 ends\n");
+                            //printk("cpath4-2-2 ends\n");
                         }
                     }
                 }
@@ -163,11 +165,11 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
         }
         read_unlock(&tasklist_lock);
 
-        printk("final index: %ld\n", idx);
+        //printk("final index: %ld\n", idx);
 
         sz_copy = sizeof(struct pinfo) * idx;
 
-        printk("copy userside base: %ld\n", sz_copy_user_base);
+        //printk("copy userside base: %ld\n", sz_copy_user_base);
         failed_copy_bytes = copy_to_user(buf + sz_copy_user_base, pBuff, sz_copy);
         sz_copy_user_base += alloc_unit;
     }
