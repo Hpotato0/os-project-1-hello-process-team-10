@@ -5,7 +5,8 @@
 #include <linux/gfp.h> // GFP_KERNEL
 #include <uapi/asm-generic/errno-base.h> // error codes
 #include <linux/cred.h> // cred->kuid_t
-#include <linux/sched.h> //TASK_COMM_LEN
+#include <linux/sched.h> // TASK_COMM_LEN
+#include <linux/uaccess.h> // access_ok
 
 static void savePinfoToBuff(struct task_struct* taskptr, struct pinfo* pBuff, unsigned int cur_depth){
     
@@ -43,6 +44,8 @@ SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
     // error detection
     if(buf == NULL || len == 0)
         return -EINVAL;
+    if(!access_ok(VERIFY_WRITE, buf, len))
+        return -EFAULT;
 
     // allocate
     alloc_unit = 64;
