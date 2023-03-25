@@ -17,6 +17,7 @@ struct pinfo {
   unsigned int  depth;       /* depth of the process in the process tree */
 };
 
+// length_passed_to_ptree length_of_user_buffer
 int main(int argc, char* argv[]){
     long ret;
     int errnum;
@@ -24,30 +25,42 @@ int main(int argc, char* argv[]){
     int length;
     int i, j;
     struct pinfo p;
-    printf("START TEST BINARY\n\n");
+    printf("START TEST BINARY\n#######################################################\n");
 
     if(!isdigit((*argv[1])))
     {
         printf("Length should be a integer");
         return 0;
     }
-    else if(atoi(argv[1]) <= 0)
-    {
-        printf("Length should be bigger than 0");
-        return 0;
+
+    int len_ptree = 0;
+    int len_user = 0;
+    
+    if(argc == 2){
+        len_ptree = atoi(argv[1]);
+        len_user = len_ptree;
     }
-    length = atoi(argv[1]);
-    data = (struct pinfo*)malloc(length*sizeof(struct pinfo));
-    ret = syscall(294, data, length);
+    else{
+        printf("invalid number of arguments\n");
+        return -1;
+    }
+
+
+    data = (struct pinfo*)malloc(len_user*sizeof(struct pinfo));
+    ret = syscall(294, data, len_ptree);
     errnum = errno;
+
+    printf("ptree syscall returned: %ld, errno: %d\n", ret, errnum);
 
     if(ret < 0)
     {
-        printf("Error during system call: %s\n\n", strerror(errnum));
+        if(errnum == 22) printf("error EINVAL during system call\n");
+        else if(errnum == 14) printf("error EFAULT during system call\n");
+        else printf("misc error during system call: %s\n", strerror(errnum));
     }
     else
     {
-        printf("number of pinfo: %ld\n", ret);
+        printf("\n");
         for(i=0;i<ret;i++)
         {
             p = data[i];
@@ -57,7 +70,10 @@ int main(int argc, char* argv[]){
         }
     }
 
-    printf("\nEND TEST BINARY\n");
+    printf("#######################################################\nEND TEST BINARY\n");
+
+    free(data);
+    return 0;
 }
 
 // aarch64-linux-gnu-gcc test_binary.c -o test_binary -static
