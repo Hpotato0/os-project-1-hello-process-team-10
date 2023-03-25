@@ -1,6 +1,6 @@
 # Project 1: hellon, process!
 * Team 10: 김현석, 홍주원, 주재형
-* test program directory: ~/project1_test
+* test program directory: ./test/test_ptree.c
 
 ## 1. Background
 ## struct task_struct
