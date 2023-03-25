@@ -21,7 +21,7 @@ system call을 구현하기에 앞서 먼저 system call을 system call table에
 * kernel/sys_ni.c: not implemented system을 위하여 함수를 등록한다.
 
 ## 3. Implement of ptree
-sys_ptree의 함수는 kernel/ptree.c에 구현되어 있다. 현재 구현한 sys_ptree는 원형은 다음과 같다.
+sys_ptree의 함수는 kernel/ptree.c에 구현되어 있다. 현재 구현한 sys_ptree의 proto type은 다음과 같다.
 ``` c
 SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
 ```
