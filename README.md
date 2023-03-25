@@ -16,11 +16,11 @@ project 1에서는 root process에서 부터 process tree를 순회하면서, pr
 
 ## 2. Register system call
 system call을 구현하기에 앞서 먼저 system call을 system call table에 추가해야 한다. 이를 위해서 다음 kernel code들을 수정해야 한다.
-* inlcude/linux/syscall.h: system call의 proto typedmf 추가
+* inlcude/linux/syscall.h: system call의 proto type을 추가
 * includ/uapi/asm-generic/uinstd.h: systemcall table에 등록한다. 294번 system call을 사용
 * kernel/sys_ni.c: not implemented system을 위하여 함수를 등록한다.
 
-## 3. Implementaion of ptree
+## 3. Implement of ptree
 sys_ptree의 함수는 kernel/ptree.c에 구현되어 있다. 현재 구현한 sys_ptree는 원형은 다음과 같다.
 ``` c
 SYSCALL_DEFINE2(ptree, struct pinfo __user *, buf, size_t, len)
