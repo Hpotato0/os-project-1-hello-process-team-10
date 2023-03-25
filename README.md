@@ -61,90 +61,41 @@ root:~> ./projecet1_test 50
 
 ## 5. Result of the test
 ```bash
-root:~> ./projecet1_test 80
+root:~> ./projecet1_test 30
 START TEST BINARY
+#######################################################
+ptree syscall returned: 30, errno: 0
 
-number of pinfo: 80
 swapper/0, 0, 0, 0
-        systemd, 1, 1, 0
-                dbus-daemon, 158, 1, 81
-                systemd-journal, 163, 1, 0
-                systemd-udevd, 189, 1, 0
-                actd, 237, 1, 0
-                buxton2d, 238, 1, 375
-                key-manager, 239, 1, 444
-                dlog_logger, 242, 1, 1901
-                amd, 244, 1, 301
-                alarm-server, 245, 1, 301
-                bt-service, 246, 1, 551
-                cynara, 247, 1, 401
-                deviced, 249, 1, 0
-                esd, 255, 1, 301
-                license-manager, 257, 1, 402
-                resourced-headl, 263, 1, 0
-                login, 271, 1, 0
-                        bash, 1050, 1, 0
-                                projecet1_test, 1240, 0, 0
-                net-config, 279, 1, 551
-                murphyd, 285, 1, 451
-                connmand, 302, 1, 551
-                systemd-logind, 318, 1, 0
-                wpa_supplicant, 327, 1, 551
-                update-manager, 337, 1, 202
-                mm-resource-man, 322, 1, 451
-                pulseaudio, 283, 1, 122
-                bt-core, 353, 1, 551
-                focus_server, 356, 1, 451
-                tlm, 366, 1, 0
-                        tlm-sessiond, 390, 1, 0
-                                bash, 438, 1, 5001
-                muse-server, 384, 1, 451
-                bluetoothd, 400, 1, 551
-                systemd, 434, 1, 5001
-                        (sd-pam), 435, 1, 5001
-                        sh, 443, 1, 5001
-                                sleep, 1239, 1, 5001
-                        launchpad-proce, 480, 1, 5001
-                                update-agent, 571, 0, 5001
-                                smartthings-thi, 593, 1, 5001
-                        dbus-daemon, 595, 1, 5001
-                pass, 499, 1, 202
-                storaged, 501, 1, 0
-                security-manage, 574, 1, 0
-                        security-manage, 577, 1, 0
-        kthreadd, 2, 1, 0
-                rcu_gp, 3, 1026, 0
-                rcu_par_gp, 4, 1026, 0
-                kworker/0:0, 5, 1026, 0
-                kworker/0:0H, 6, 1026, 0
-                kworker/u8:0, 7, 1026, 0
-                mm_percpu_wq, 8, 1026, 0
-                ksoftirqd/0, 9, 1, 0
-                rcu_preempt, 10, 1026, 0
-                rcu_sched, 11, 1026, 0
-                rcu_bh, 12, 1026, 0
-                migration/0, 13, 1, 0
-                cpuhp/0, 14, 1, 0
-                cpuhp/1, 15, 1, 0
-                migration/1, 16, 1, 0
-                ksoftirqd/1, 17, 1, 0
-                kworker/1:0, 18, 1026, 0
-                kworker/1:0H, 19, 1026, 0
-                cpuhp/2, 20, 1, 0
-                migration/2, 21, 1, 0
-                ksoftirqd/2, 22, 1, 0
-                kworker/2:0, 23, 1026, 0
-                kworker/2:0H, 24, 1026, 0
-                cpuhp/3, 25, 1, 0
-                migration/3, 26, 1, 0
-                ksoftirqd/3, 27, 1, 0
-                kworker/3:0, 28, 1026, 0
-                kworker/3:0H, 29, 1026, 0
-                kdevtmpfs, 30, 1, 0
-                netns, 31, 1026, 0
-                rcu_tasks_kthre, 32, 1, 0
-                kauditd, 33, 1, 0
-                kworker/0:1, 34, 1026, 0
-
+	systemd, 1, 1, 0
+		dbus-daemon, 162, 1, 81
+		systemd-journal, 164, 1, 0
+		systemd-udevd, 189, 1, 0
+		actd, 237, 1, 0
+		buxton2d, 239, 1, 375
+		key-manager, 240, 1, 444
+		dlog_logger, 241, 1, 1901
+		amd, 242, 1, 301
+		alarm-server, 245, 1, 301
+		bt-service, 246, 1, 551
+		cynara, 248, 1, 401
+		deviced, 250, 1, 0
+		esd, 254, 1, 301
+		license-manager, 255, 1, 402
+		resourced-headl, 269, 1, 0
+		login, 273, 1, 0
+			bash, 648, 1, 0
+				project1_test, 994, 0, 0
+		net-config, 278, 1, 551
+		murphyd, 301, 1, 451
+		wpa_supplicant, 313, 1, 551
+		connmand, 320, 1, 551
+		update-manager, 326, 1, 202
+		systemd-logind, 329, 1, 0
+		mm-resource-man, 330, 1, 451
+		bt-core, 354, 1, 551
+		pulseaudio, 287, 1, 122
+		focus_server, 373, 1, 451
+#######################################################
 END TEST BINARY
 ```
